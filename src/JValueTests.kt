@@ -27,7 +27,7 @@ class JValueTests{
     @Test
     fun testJArray(){
         val array = JArray(listOf(JString("a"), JNumber(1522), JBoolean(true)))
-        assertEquals("[\n\"a\",\n1522,\ntrue\n]", array.toText())
+        assertEquals("[\n  \"a\",\n  1522,\n  true\n]", array.toText())
     }
     @Test
     fun testJObject(){
@@ -40,11 +40,11 @@ class JValueTests{
             )
         )
         val expected = """{
-"name": "Json",
-"active": true,
-"age": 24,
-"extra": null
-}""".trimIndent()
+  "name": "Json",
+  "active": true,
+  "age": 24,
+  "extra": null
+}"""
 
         assertEquals(expected, obj.toText())
     }
@@ -67,16 +67,16 @@ class JValueTests{
             )
         )
         val expected = """{
-"data": [
-{
-"id": 1,
-"valid": false
-},
-{
-"id": 2,
-"valid": true
-}
-]
+  "data": [
+    {
+      "id": 1,
+      "valid": false
+    },
+    {
+      "id": 2,
+      "valid": true
+    }
+  ]
 }""".trimIndent()
 
         assertEquals(expected, obj.toText())
