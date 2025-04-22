@@ -11,7 +11,9 @@ class JObject(val values: List<JField>) : JValue {
 }
 
 class JArray(val elements: List<JValue>) : JValue {
-    override fun toText(): String = elements.joinToString(separator = ",", prefix = "[", postfix = "]")
+    override fun toText(): String = elements.joinToString(separator = ",\n", prefix = "[\n", postfix = "\n]"){
+        it.toText()
+    }
 }
 
 class JString(val value: String) : JValue {
@@ -27,5 +29,5 @@ class JNumber(val value: Number) : JValue {
 }
 
 class JNull() : JValue {
-    override fun toText(): String = ""
+    override fun toText(): String = "null"
 }
