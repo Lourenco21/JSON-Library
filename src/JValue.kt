@@ -18,6 +18,10 @@ class JObject(val fields: List<JField>) : JValue {
 
         return "{\n$content\n$indent}"
     }
+
+    fun filter(predicate: (JField) -> Boolean): JObject {
+        return JObject(fields.filter(predicate))
+    }
 }
 
 class JArray(val elements: List<JValue>) : JValue {
@@ -32,6 +36,14 @@ class JArray(val elements: List<JValue>) : JValue {
         }
 
         return "[\n$content\n$indent]"
+    }
+
+    fun filter(predicate: (JValue) -> Boolean): JArray {
+        return JArray(elements.filter(predicate))
+    }
+
+    fun map(transform: (JValue) -> JValue): JArray {
+        return JArray(elements.map(transform))
     }
 }
 
@@ -49,4 +61,46 @@ class JNumber(val value: Number) : JValue {
 
 class JNull : JValue {
     override fun toText(indentLevel: Int): String = "null"
+}
+
+fun JValue.accept(visitor:(JValue) -> Unit){
+    visitor(this)
+    when(this){
+        is JObject -> this.fields.forEach { it.value.accept(visitor) }
+        is JArray -> this.elements.forEach { it.accept(visitor) }
+    }
+}
+
+fun JValue.validateKeys(): Boolean{
+    var valid = true
+
+    this.accept{
+        if(it is JObject){
+            it.fields.forEach {
+                if(it.name.isBlank())
+                    valid = false
+            }
+            val names = it.fields.map { it.name }
+            val unique = names.toSet()
+            if(names.size != unique.size)
+                valid = false
+        }
+    }
+    return valid
+}
+
+fun JValue.validateArrayTypes(): Boolean{
+
+    var valid = true
+
+    this.accept{
+        if(it is JArray && it.elements.isNotEmpty()){
+            val firstType = it.elements.firstOrNull(){ element -> element !is JNull}?.javaClass
+            if(firstType != null){
+                if(!it.elements.all{element -> element is JNull || element.javaClass == firstType})
+                    valid = false
+            }
+        }
+    }
+    return valid
 }
