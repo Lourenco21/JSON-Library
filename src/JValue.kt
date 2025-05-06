@@ -68,6 +68,7 @@ fun JValue.accept(visitor:(JValue) -> Unit){
     when(this){
         is JObject -> this.fields.forEach { it.value.accept(visitor) }
         is JArray -> this.elements.forEach { it.accept(visitor) }
+        else -> {}
     }
 }
 
