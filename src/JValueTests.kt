@@ -95,7 +95,7 @@ class JValueTests {
 class JValueFilterTests {
 
     @Test
-    fun testJObjectFilter_byKeyName() {
+    fun testJObjectFilterByKeyName() {
         val obj = JObject(
             listOf(
                 JField("id", JNumber(1)),
@@ -115,7 +115,7 @@ class JValueFilterTests {
         assertEquals(expected.toText(), filtered.toText())
     }
     @Test
-    fun testJObjectFilter_byValueType() {
+    fun testJObjectFilterByValueType() {
         val obj = JObject(
             listOf(
                 JField("username", JString("Lourenço21")),
@@ -134,7 +134,7 @@ class JValueFilterTests {
         assertEquals(expected.toText(), filtered.toText())
     }
     @Test
-    fun testJArrayFilter_numbersOnly() {
+    fun testJArrayFilterNumbersOnly() {
         val arr = JArray(
             listOf(JNumber(10), JString("hello"), JNumber(42), JNull())
         )
@@ -148,7 +148,7 @@ class JValueFilterTests {
     }
 
     @Test
-    fun testJArrayFilter_removeNulls() {
+    fun testJArrayFilterRemoveNulls() {
         val arr = JArray(
             listOf(JString("one"), JNull(), JString("two"), JNull())
         )
@@ -162,7 +162,7 @@ class JValueFilterTests {
     }
 
     @Test
-    fun testJArrayFilter_nestedObjects() {
+    fun testJArrayFilterNestedObjects() {
         val arr = JArray(
             listOf(
                 JObject(listOf(JField("type", JString("student")))),
@@ -187,7 +187,7 @@ class JValueFilterTests {
 
 class TestVisitors{
     @Test
-    fun testValidateKeys_validObject() {
+    fun testValidateKeysValidObject() {
         val obj = JObject(
             listOf(
                 JField("name", JString("Guilherme")),
@@ -199,7 +199,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateKeys_duplicateKeys() {
+    fun testValidateKeysDuplicateKeys() {
         val obj = JObject(
             listOf(
                 JField("name", JString("Lourenço")),
@@ -210,7 +210,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateKeys_blankKey() {
+    fun testValidateKeysBlankKey() {
         val obj = JObject(
             listOf(
                 JField("", JString("blank")),
@@ -221,7 +221,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateKeys_nestedObjects() {
+    fun testValidateKeysNestedObjects() {
         val obj = JObject(
             listOf(
                 JField("user", JObject(
@@ -236,7 +236,7 @@ class TestVisitors{
         assertFalse(obj.validateKeys())
     }
     @Test
-    fun testValidateArrayTypes_allSameType() {
+    fun testValidateArrayTypesAllSameType() {
         val arr = JArray(
             listOf(JString("a"), JString("b"), JString("c"))
         )
@@ -244,7 +244,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateArrayTypes_mixedTypes() {
+    fun testValidateArrayTypesMixedTypes() {
         val arr = JArray(
             listOf(JString("a"), JNumber(1), JString("b"))
         )
@@ -252,7 +252,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateArrayTypes_withNullsOnly() {
+    fun testValidateArrayTypesWithNullsOnly() {
         val arr = JArray(
             listOf(JNull(), JNull())
         )
@@ -260,7 +260,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateArrayTypes_sameTypeWithNulls() {
+    fun testValidateArrayTypesSameTypeWithNulls() {
         val arr = JArray(
             listOf(JNumber(1), JNull(), JNumber(2))
         )
@@ -268,7 +268,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateArrayTypes_differentTypesWithNulls() {
+    fun testValidateArrayTypesDifferentTypesWithNulls() {
         val arr = JArray(
             listOf(JString("a"), JNull(), JNumber(2))
         )
@@ -276,7 +276,7 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateArrayTypes_nestedArrays() {
+    fun testValidateArrayTypesNestedArrays() {
         val json = JObject(
             listOf(
                 JField("numbers", JArray(listOf(JNumber(1), JNumber(2)))),
@@ -290,7 +290,7 @@ class TestVisitors{
 class JArrayMapTests{
 
     @Test
-    fun testMap_toUpperCase() {
+    fun testMapToUpperCase() {
         val arr = JArray(
             listOf(JString("maça"), JString("banana"), JString("limão"))
         )
@@ -304,7 +304,7 @@ class JArrayMapTests{
     }
 
     @Test
-    fun testMap_emptyArray() {
+    fun testMapEmptyArray() {
         val arr = JArray(emptyList())
 
         val transformed = arr.map { it }
@@ -315,7 +315,7 @@ class JArrayMapTests{
     }
 
     @Test
-    fun testMap_withNull() {
+    fun testMapWithNull() {
         val arr = JArray(
             listOf(JString("maça"), JNull(), JNumber(27))
         )
@@ -335,7 +335,7 @@ class JArrayMapTests{
     }
 
     @Test
-    fun testMap_nestedObjects() {
+    fun testMapNestedObjects() {
         val arr = JArray(
             listOf(
                 JObject(listOf(JField("name", JString("Lourenço")), JField("age", JNumber(21)))),
@@ -347,7 +347,7 @@ class JArrayMapTests{
                 JObject(
                     it.fields.map { field ->
                         if (field.name == "age" && field.value is JNumber) {
-                            JField(field.name, JNumber((field.value as JNumber).value.toInt() + 1))
+                            JField(field.name, JNumber(field.value.value.toInt() + 1))
                         } else {
                             field
                         }
@@ -369,7 +369,7 @@ class JArrayMapTests{
     }
 
     @Test
-    fun testMap_transformDifferentTypes() {
+    fun testMapTransformDifferentTypes() {
         val arr = JArray(
             listOf(JString("maça"), JNumber(10), JBoolean(true))
         )
