@@ -14,9 +14,10 @@ fun main() {
                 )
             )),
             JField("hobbies", JArray(listOf(JString("reading"), JString("cycling")))),
-            JField("extra", JNull())
+            JField("extra", JNull)
         )
     )
 
     println(json.toText())
+
 }

@@ -22,7 +22,7 @@ class JValueTests {
 
     @Test
     fun testJNull() {
-        assertEquals("null", JNull().toText())
+        assertEquals("null", JNull.toText())
     }
 
     @Test
@@ -38,7 +38,7 @@ class JValueTests {
                 JField("name", JString("Json")),
                 JField("active", JBoolean(true)),
                 JField("age", JNumber(24)),
-                JField("extra", JNull())
+                JField("extra", JNull)
             )
         )
         val expected = """{
@@ -112,7 +112,7 @@ class JValueFilterTests {
             )
         )
 
-        assertEquals(expected.toText(), filtered.toText())
+        assertEquals(expected, filtered)
     }
     @Test
     fun testJObjectFilterByValueType() {
@@ -131,12 +131,12 @@ class JValueFilterTests {
             )
         )
 
-        assertEquals(expected.toText(), filtered.toText())
+        assertEquals(expected, filtered)
     }
     @Test
     fun testJArrayFilterNumbersOnly() {
         val arr = JArray(
-            listOf(JNumber(10), JString("hello"), JNumber(42), JNull())
+            listOf(JNumber(10), JString("hello"), JNumber(42), JNull)
         )
         val filtered = arr.filter { it is JNumber }
 
@@ -144,13 +144,13 @@ class JValueFilterTests {
             listOf(JNumber(10), JNumber(42))
         )
 
-        assertEquals(expected.toText(), filtered.toText())
+        assertEquals(expected, filtered)
     }
 
     @Test
     fun testJArrayFilterRemoveNulls() {
         val arr = JArray(
-            listOf(JString("one"), JNull(), JString("two"), JNull())
+            listOf(JString("one"), JNull, JString("two"), JNull)
         )
         val filtered = arr.filter { it !is JNull }
 
@@ -158,7 +158,7 @@ class JValueFilterTests {
             listOf(JString("one"), JString("two"))
         )
 
-        assertEquals(expected.toText(), filtered.toText())
+        assertEquals(expected, filtered)
     }
 
     @Test
@@ -180,7 +180,7 @@ class JValueFilterTests {
             )
         )
 
-        assertEquals(expected.toText(), filtered.toText())
+        assertEquals(expected, filtered)
     }
 
 }
@@ -199,17 +199,6 @@ class TestVisitors{
     }
 
     @Test
-    fun testValidateKeysDuplicateKeys() {
-        val obj = JObject(
-            listOf(
-                JField("name", JString("Lourenço")),
-                JField("name", JString("Duplicate"))
-            )
-        )
-        assertFalse(obj.validateKeys())
-    }
-
-    @Test
     fun testValidateKeysBlankKey() {
         val obj = JObject(
             listOf(
@@ -220,21 +209,6 @@ class TestVisitors{
         assertFalse(obj.validateKeys())
     }
 
-    @Test
-    fun testValidateKeysNestedObjects() {
-        val obj = JObject(
-            listOf(
-                JField("user", JObject(
-                    listOf(
-                        JField("id", JNumber(1)),
-                        JField("name", JString("Guilherme")),
-                        JField("name", JString("Duplicate"))
-                    )
-                ))
-            )
-        )
-        assertFalse(obj.validateKeys())
-    }
     @Test
     fun testValidateArrayTypesAllSameType() {
         val arr = JArray(
@@ -254,7 +228,7 @@ class TestVisitors{
     @Test
     fun testValidateArrayTypesWithNullsOnly() {
         val arr = JArray(
-            listOf(JNull(), JNull())
+            listOf(JNull, JNull)
         )
         assertTrue(arr.validateArrayTypes())
     }
@@ -262,7 +236,7 @@ class TestVisitors{
     @Test
     fun testValidateArrayTypesSameTypeWithNulls() {
         val arr = JArray(
-            listOf(JNumber(1), JNull(), JNumber(2))
+            listOf(JNumber(1), JNull, JNumber(2))
         )
         assertTrue(arr.validateArrayTypes())
     }
@@ -270,7 +244,7 @@ class TestVisitors{
     @Test
     fun testValidateArrayTypesDifferentTypesWithNulls() {
         val arr = JArray(
-            listOf(JString("a"), JNull(), JNumber(2))
+            listOf(JString("a"), JNull, JNumber(2))
         )
         assertFalse(arr.validateArrayTypes())
     }
@@ -300,7 +274,7 @@ class JArrayMapTests{
         val expected = JArray(
             listOf(JString("MAÇA"), JString("BANANA"), JString("LIMÃO"))
         )
-        assertEquals(expected.toText(), transformed.toText())
+        assertEquals(expected, transformed)
     }
 
     @Test
@@ -311,13 +285,13 @@ class JArrayMapTests{
 
         val expected = JArray(emptyList())
 
-        assertEquals(expected.toText(), transformed.toText())
+        assertEquals(expected, transformed)
     }
 
     @Test
     fun testMapWithNull() {
         val arr = JArray(
-            listOf(JString("maça"), JNull(), JNumber(27))
+            listOf(JString("maça"), JNull, JNumber(27))
         )
         val transformed = arr.map {
             when (it) {
@@ -328,10 +302,10 @@ class JArrayMapTests{
         }
 
         val expected = JArray(
-            listOf(JString("MAÇA"), JNull(), JNumber(28))
+            listOf(JString("MAÇA"), JNull, JNumber(28))
         )
 
-        assertEquals(expected.toText(), transformed.toText())
+        assertEquals(expected, transformed)
     }
 
     @Test
@@ -365,7 +339,7 @@ class JArrayMapTests{
             )
         )
 
-        assertEquals(expected.toText(), transformed.toText())
+        assertEquals(expected, transformed)
     }
 
     @Test
@@ -387,7 +361,7 @@ class JArrayMapTests{
             listOf(JString("MAÇA"), JNumber(11), JBoolean(false))
         )
 
-        assertEquals(expected.toText(), transformed.toText())
+        assertEquals(expected, transformed)
     }
 
 }

@@ -3,9 +3,17 @@ interface JValue {
     fun toText(indentLevel: Int): String
 }
 
-class JField(val name: String, val value: JValue)
+data class JField(val name: String, val value: JValue)
 
-class JObject(val fields: List<JField>) : JValue {
+data class JObject(val fields: List<JField>) : JValue {
+
+    init{
+        val names = fields.map { it.name }
+        if(names.size != names.toSet().size){
+            throw IllegalArgumentException("Não é permitido usar chaves duplicadas na criação de um JObject!")
+        }
+    }
+
     override fun toText(indentLevel: Int): String {
         if (fields.isEmpty()) return "{}"
 
@@ -24,7 +32,7 @@ class JObject(val fields: List<JField>) : JValue {
     }
 }
 
-class JArray(val elements: List<JValue>) : JValue {
+data class JArray(val elements: List<JValue>) : JValue {
     override fun toText(indentLevel: Int): String {
         if (elements.isEmpty()) return "[]"
 
@@ -47,19 +55,19 @@ class JArray(val elements: List<JValue>) : JValue {
     }
 }
 
-class JString(val value: String) : JValue {
+data class JString(val value: String) : JValue {
     override fun toText(indentLevel: Int): String = "\"$value\""
 }
 
-class JBoolean(val value: Boolean) : JValue {
+data class JBoolean(val value: Boolean) : JValue {
     override fun toText(indentLevel: Int): String = if(value) "true" else "false"
 }
 
-class JNumber(val value: Number) : JValue {
+data class JNumber(val value: Number) : JValue {
     override fun toText(indentLevel: Int): String = value.toString()
 }
 
-class JNull : JValue {
+object JNull : JValue {
     override fun toText(indentLevel: Int): String = "null"
 }
 
@@ -96,7 +104,7 @@ fun JValue.validateArrayTypes(): Boolean{
 
     this.accept{
         if(it is JArray && it.elements.isNotEmpty()){
-            val firstType = it.elements.firstOrNull(){ element -> element !is JNull}?.javaClass
+            val firstType = it.elements.firstOrNull{ element -> element !is JNull}?.javaClass
             if(firstType != null){
                 if(!it.elements.all{element -> element is JNull || element.javaClass == firstType})
                     valid = false
