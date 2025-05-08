@@ -51,6 +51,16 @@ class JValueTests {
         assertEquals(expected, obj.toText())
     }
 
+    @Test(expected = IllegalArgumentException::class)
+    fun testDuplicateKeysThrowsException() {
+        JObject(
+            listOf(
+                JField("id", JNumber(1)),
+                JField("id", JString("duplicado"))
+            )
+        )
+    }
+
     @Test
     fun testNestedJson() {
         val obj = JObject(
@@ -364,4 +374,116 @@ class JArrayMapTests{
         assertEquals(expected, transformed)
     }
 
+}
+
+class InferenceTests {
+
+    data class Course(
+        val name: String,
+        val credits: Int,
+        val evaluation: List<EvalItem>
+    )
+
+    data class EvalItem(
+        val name: String,
+        val percentage: Double,
+        val mandatory: Boolean,
+        val type: EvalType?
+    )
+
+    enum class EvalType {
+        TEST, PROJECT, EXAM
+    }
+
+    @Test
+    fun testSimpleDataClassInference() {
+        data class Person(val name: String, val age: Int)
+        val person = Person("Guilherme", 21)
+
+        val json = instantiateJsonModel(person)
+        val expected = JObject(
+            listOf(
+                JField("name", JString("Guilherme")),
+                JField("age", JNumber(21))
+            )
+        )
+
+        assertEquals(expected, json)
+    }
+
+    @Test
+    fun testNestedDataClassWithListAndEnum() {
+        val course = Course(
+            "PA", 6, listOf(
+                EvalItem("quizzes", 0.2, false, null),
+                EvalItem("project", 0.8, true, EvalType.PROJECT)
+            )
+        )
+
+        val json = instantiateJsonModel(course)
+        val jsonStr = json.toText(0)
+
+        assertTrue(jsonStr.contains("\"name\": \"PA\""))
+        assertTrue(jsonStr.contains("\"credits\": 6"))
+        assertTrue(jsonStr.contains("\"mandatory\": true"))
+        assertTrue(jsonStr.contains("\"type\": \"PROJECT\""))
+    }
+
+    @Test
+    fun testMapInference() {
+        val map = mapOf(
+            "key1" to "value",
+            "key2" to 42,
+            "key3" to null
+        )
+
+        val json = instantiateJsonModel(map)
+        val jsonStr = json.toText(0)
+
+        assertTrue(jsonStr.contains("\"key1\": \"value\""))
+        assertTrue(jsonStr.contains("\"key2\": 42"))
+        assertTrue(jsonStr.contains("\"key3\": null"))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testUnsupportedType() {
+        class NotADataClass(val x: Int)
+        instantiateJsonModel(NotADataClass(1))
+    }
+
+    @Test
+    fun testCourseInferenceToJson() {
+        val course = Course(
+            "PA", 6, listOf(
+                EvalItem("quizzes", 0.2, false, null),
+                EvalItem("project", 0.8, true, EvalType.PROJECT)
+            )
+        )
+
+        val json = instantiateJsonModel(course)
+        val result = json.toText(0)
+
+        val expected = """
+            {
+              "name": "PA",
+              "credits": 6,
+              "evaluation": [
+                {
+                  "name": "quizzes",
+                  "percentage": 0.2,
+                  "mandatory": false,
+                  "type": null
+                },
+                {
+                  "name": "project",
+                  "percentage": 0.8,
+                  "mandatory": true,
+                  "type": "PROJECT"
+                }
+              ]
+            }
+        """.trimIndent()
+
+        assertEquals(expected, result)
+    }
 }

@@ -1,3 +1,9 @@
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
+
 interface JValue {
     fun toText(): String = toText(0)
     fun toText(indentLevel: Int): String
@@ -112,4 +118,37 @@ fun JValue.validateArrayTypes(): Boolean{
         }
     }
     return valid
+}
+
+private fun KClass<*>.matchProperty(parameter: KParameter) : KProperty<*> {
+    require(isData)
+    return declaredMemberProperties.first { it.name == parameter.name }
+}
+
+fun instantiateJsonModel(value: Any?) : JValue{
+    return when(value){
+        is Int, is Double-> JNumber(value)
+        is Boolean -> JBoolean(value)
+        is String -> JString(value)
+        null -> JNull
+        is List<*> -> JArray(value.map { instantiateJsonModel(it) })
+        is Enum<*> -> JString(value.name)
+        is Map<*, *> -> {
+            if(value.keys.any {it !is String}){
+                throw IllegalArgumentException("O nome do campo tem de ser uma String!")
+            }
+            val fields = value.entries.map{ (k, v) -> JField(k as String, instantiateJsonModel(v)) }
+            JObject(fields)
+        }
+        else -> {
+            val clazz = value::class
+            require(clazz.isData)
+            val fields = mutableListOf<JField>()
+            clazz.primaryConstructor?.parameters?.forEach { p ->
+                val prop = clazz.matchProperty(p)
+                fields.add(JField(prop.name, instantiateJsonModel(prop.call(value))))
+            }
+            JObject(fields)
+        }
+    }
 }
