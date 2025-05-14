@@ -1,3 +1,6 @@
+import com.sun.net.httpserver.HttpServer
+import com.sun.net.httpserver.HttpExchange
+import java.net.InetSocketAddress
 import kotlin.collections.set
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -50,7 +53,13 @@ class GetJson(vararg val controllers: KClass<*>) {
         paths.forEach {
             val functionToBeCalled = it.value.first
             val controllerInstance = it.value.second
-            if (it.key == realPath) {
+            var keyPath = it.key
+            if(path.contains("path") && it.key.contains("path")){
+                keyPath = it.key.split("{")[0]
+                realPath = keyPath
+            }
+
+            if (keyPath == realPath) {
                 val function = controllerInstance::class.functions.first { f -> f.name == functionToBeCalled }
                 val realParams = function.parameters.filter { it.kind == KParameter.Kind.VALUE }
                 if (realParams.isNotEmpty()) {
@@ -59,6 +68,9 @@ class GetJson(vararg val controllers: KClass<*>) {
                     function.parameters.forEach {
                         if (it.hasAnnotation<Param>()) {
                             args[it] = splitArgs(path, it)
+                        }
+                        if(it.hasAnnotation<Path>()) {
+                            args[it] = mapType(path.split("path")[1].removePrefix("/"), it.type)
                         }
                     }
                     result = function.callBy(args)
@@ -92,35 +104,43 @@ class GetJson(vararg val controllers: KClass<*>) {
         }
         return arg
     }
+
+    //Servidor
+
+    fun startServer(port: Int) {
+        val server = HttpServer.create(InetSocketAddress(port), 0)
+
+        server.createContext("/") { exchange ->
+            handle(exchange)
+        }
+
+        server.executor = null
+        println("Servidor a correr em http://localhost:$port/")
+        server.start()
+    }
+
+    fun handle(exchange: HttpExchange) {
+        val requestMethod = exchange.requestMethod
+        val requestPath = exchange.requestURI.toString()
+
+        if (requestMethod != "GET") {
+            exchange.sendResponseHeaders(405, -1)
+            return
+        }
+
+        try {
+            val jsonValue = this.run(requestPath)
+            val jsonText = jsonValue.toText()
+
+            val responseBytes = jsonText.toByteArray(Charsets.UTF_8)
+            exchange.sendResponseHeaders(200, responseBytes.size.toLong())
+            exchange.responseBody.use { os -> os.write(responseBytes) }
+        } catch (e: Exception) {
+            val error = """{"error": "${e.message}"}"""
+            val responseBytes = error.toByteArray(Charsets.UTF_8)
+            exchange.sendResponseHeaders(500, responseBytes.size.toLong())
+            exchange.responseBody.use { os -> os.write(responseBytes) }
+        }
+    }
 }
-
-@Mapping("api")
-class Controller {
-
-    @Mapping("ints")
-    fun demo(): List<Int> = listOf(1, 2, 3)
-
-    @Mapping("pair")
-    fun obj(): Pair<String, String> = Pair("um", "dois")
-
-    @Mapping("path/{pathvar}")
-    fun path(
-        @Path pathvar: String
-    ): String = "$pathvar!"
-
-    @Mapping("args")
-    fun args(
-        @Param n: Int,
-        @Param text: String
-    ): Map<String, String> = mapOf(text to text.repeat(n))
-}
-
-fun main() {
-    val app = GetJson(Controller::class)
-    println(app.getPaths().keys)
-    println(app.run("/api/args?n=3&text=PA"))
-    println(app.run("/api/args?n=3&text=PA").toText())
-}
-
-
 
