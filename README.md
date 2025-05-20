@@ -153,3 +153,8 @@ fun main() {
  - Using the url `http://localhost:8080/api/ints` you get `[1,2,3]` in its JSON representation<br>
  - Using the url `http://localhost:8080/api/path/JSON-Library` you get `"JSON-Library!"` in its JSON representation<br>
  - Using the url `http://localhost:8080/api/args?n=3&text=JSON` you get `{"JSON":"JSONJSONJSON"}` in its JSON representation<br>
+<br>
+
+<h2>UML Class Diagram</h2>
+ 
+![Diagrama de Classes UML](https://github.com/user-attachments/assets/b38ffdde-8c7d-446c-a31a-4ac3c944b41e)
