@@ -104,8 +104,8 @@ Returns
 ```
 <h3>Other methods</h3>
 
- - `validateKeys()` validates taht there are no duplciate or empty keys in a JObject
- - `validateArrayTypes()` valdiates that a JArray have values of the same type (ignoring nulls)
+ - `validateKeys()` validates that there are no duplciate or empty keys in a JObject
+ - `validateArrayTypes()` validates that a JArray have values of the same type (ignoring nulls)
  - `filter` filters through JArrays and JObjects according to a predicate, creating a new JArray/JObject with only the filetered fields
  - `map` transforms the JArray elements according to a function passed as a parameter 
 
