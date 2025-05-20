@@ -23,7 +23,7 @@ annotation class Param()
 
 class GetJson(vararg val controllers: KClass<*>) {
 
-    fun getPaths(): Map<String, Pair<String, Any>> {
+    private fun getPaths(): Map<String, Pair<String, Any>> {
         val paths = mutableMapOf<String, Pair<String, Any>>()
 
         controllers.forEach { c ->
@@ -83,7 +83,7 @@ class GetJson(vararg val controllers: KClass<*>) {
         return instantiateJsonModel(result)
     }
 
-    fun mapType(value: String, type: KType): Any =
+    private fun mapType(value: String, type: KType): Any =
         when (type.classifier) {
             Int::class -> value.toInt()
             Double::class -> value.toDouble()
@@ -92,7 +92,7 @@ class GetJson(vararg val controllers: KClass<*>) {
             else -> TODO("unsupported: " + type.classifier.toString())
         }
 
-    fun splitArgs(path: String, param: KParameter): Any? {
+    private fun splitArgs(path: String, param: KParameter): Any? {
         var arg : Any? = null
         val pathParts = path.split('?')
         val argsParts = pathParts[1].split("&")
@@ -119,7 +119,7 @@ class GetJson(vararg val controllers: KClass<*>) {
         server.start()
     }
 
-    fun handle(exchange: HttpExchange) {
+    private fun handle(exchange: HttpExchange) {
         val requestMethod = exchange.requestMethod
         val requestPath = exchange.requestURI.toString()
 
